@@ -1,183 +1,123 @@
 const sampleContents = [
- {
-    title: "Morning Sunshine",
-    body: "Every new morning is proof that you survived yesterday. Keep going.",
+  {
+    mood: "happy",
     type: "quote",
-    moods: ["happy", "motivated"],
-    tags: ["morning", "inspiration"],
-    likesCount: 12,
-    isApproved: true
+    content: "Every new morning is proof that you survived yesterday. Keep going.",
+    status: "approved"
   },
   {
-    title: "Debugging Humor",
-    body: "Why did the developer go broke? Because he used up all his cache.",
+    mood: "happy",
     type: "joke",
-    moods: ["happy"],
-    tags: ["tech", "funny"],
-    likesCount: 8,
-    isApproved: true
+    content: "Why did the developer go broke? Because he used up all his cache.",
+    status: "approved"
   },
   {
-    title: "Rainy Thoughts",
-    body: "Some days feel heavy, but even storms eventually run out of rain.",
+    mood: "sad",
     type: "quote",
-    moods: ["sad", "calm"],
-    tags: ["life", "deep"],
-    likesCount: 5,
-    isApproved: true
+    content: "Some days feel heavy, but even storms eventually run out of rain.",
+    status: "approved"
   },
   {
-    title: "Late Night Motivation",
-    body: "The fact that you're still trying means you haven't given up. That matters.",
+    mood: "motivated",
     type: "message",
-    moods: ["motivated"],
-    tags: ["encouragement"],
-    likesCount: 15,
-    isApproved: true
+    content: "The fact that you're still trying means you haven't given up. That matters.",
+    status: "approved"
   },
   {
-    title: "Coffee Logic",
-    body: "Behind every successful person is a substantial amount of coffee.",
+    mood: "energetic",
     type: "joke",
-    moods: ["happy", "energetic"],
-    tags: ["coffee", "work"],
-    likesCount: 6,
-    isApproved: true
+    content: "Behind every successful person is a substantial amount of coffee.",
+    status: "approved"
   },
   {
-    title: "Lost but Learning",
-    body: "She felt lost, but she realized she was actually just exploring a new version of herself.",
+    mood: "reflective",
     type: "story",
-    moods: ["reflective", "sad"],
-    tags: ["growth", "journey"],
-    likesCount: 9,
-    isApproved: true
+    content: "She felt lost, but she realized she was actually exploring a new version of herself.",
+    status: "approved"
   },
   {
-    title: "Tiny Wins",
-    body: "Celebrate small wins. They build big confidence.",
+    mood: "motivated",
     type: "quote",
-    moods: ["motivated", "happy"],
-    tags: ["success"],
-    likesCount: 11,
-    isApproved: true
+    content: "Celebrate small wins. They build big confidence.",
+    status: "approved"
   },
   {
-    title: "Overthinking Club",
-    body: "My brain at 2AM: let's replay every awkward moment since 2009.",
+    mood: "anxious",
     type: "joke",
-    moods: ["anxious", "sad"],
-    tags: ["relatable"],
-    likesCount: 7,
-    isApproved: true
+    content: "My brain at 2AM: let's replay every awkward moment since 2009.",
+    status: "approved"
   },
   {
-    title: "Healing Takes Time",
-    body: "It’s okay if your progress feels slow. Healing is not a race.",
+    mood: "calm",
     type: "message",
-    moods: ["calm", "sad"],
-    tags: ["mental health"],
-    likesCount: 14,
-    isApproved: true
+    content: "It’s okay if your progress feels slow. Healing is not a race.",
+    status: "approved"
   },
   {
-    title: "Unexpected Courage",
-    body: "You don’t realize how strong you are until being strong is your only option.",
+    mood: "motivated",
     type: "quote",
-    moods: ["motivated"],
-    tags: ["strength"],
-    likesCount: 18,
-    isApproved: true
+    content: "You don’t realize how strong you are until being strong is your only option.",
+    status: "approved"
   },
   {
-    title: "Friendly Reminder",
-    body: "Drink water. Take breaks. You matter.",
+    mood: "calm",
     type: "message",
-    moods: ["calm", "happy"],
-    tags: ["self-care"],
-    likesCount: 10,
-    isApproved: true
+    content: "Drink water. Take breaks. You matter.",
+    status: "approved"
   },
   {
-    title: "Gym Starter Pack",
-    body: "Day 1 at the gym: 90% confidence, 10% knowing what you're doing.",
+    mood: "happy",
     type: "joke",
-    moods: ["happy"],
-    tags: ["fitness", "funny"],
-    likesCount: 4,
-    isApproved: true
+    content: "Day 1 at the gym: 90% confidence, 10% knowing what you're doing.",
+    status: "approved"
   },
   {
-    title: "Sunset Reflection",
-    body: "The sunset reminded her that endings can be beautiful too.",
+    mood: "reflective",
     type: "story",
-    moods: ["calm", "reflective"],
-    tags: ["nature"],
-    likesCount: 13,
-    isApproved: true
+    content: "The sunset reminded her that endings can be beautiful too.",
+    status: "approved"
   },
   {
-    title: "Burnout Reality",
-    body: "Working hard is good. Burning out is not.",
+    mood: "tired",
     type: "quote",
-    moods: ["tired", "reflective"],
-    tags: ["work", "life balance"],
-    likesCount: 6,
-    isApproved: true
+    content: "Working hard is good. Burning out is not.",
+    status: "approved"
   },
   {
-    title: "Social Battery",
-    body: "My social battery lasts exactly 2 hours. After that, I need silence.",
+    mood: "calm",
     type: "joke",
-    moods: ["anxious", "calm"],
-    tags: ["relatable"],
-    likesCount: 9,
-    isApproved: true
+    content: "My social battery lasts exactly 2 hours. After that, I need silence.",
+    status: "approved"
   },
   {
-    title: "Small Step Today",
-    body: "One small step today is better than no step at all.",
+    mood: "motivated",
     type: "message",
-    moods: ["motivated"],
-    tags: ["progress"],
-    likesCount: 16,
-    isApproved: true
+    content: "One small step today is better than no step at all.",
+    status: "approved"
   },
   {
-    title: "Rainy Day Comfort",
-    body: "Blankets, soft music, and the sound of rain — peace.",
+    mood: "calm",
     type: "story",
-    moods: ["calm"],
-    tags: ["cozy"],
-    likesCount: 5,
-    isApproved: true
+    content: "Blankets, soft music, and the sound of rain — peace.",
+    status: "approved"
   },
   {
-    title: "Fear of Starting",
-    body: "Sometimes the hardest part is simply beginning.",
+    mood: "anxious",
     type: "quote",
-    moods: ["anxious", "motivated"],
-    tags: ["growth"],
-    likesCount: 8,
-    isApproved: true
+    content: "Sometimes the hardest part is simply beginning.",
+    status: "approved"
   },
   {
-    title: "Weekend Mood",
-    body: "Weekend plan: recharge, reset, and absolutely avoid emails.",
+    mood: "happy",
     type: "joke",
-    moods: ["happy", "calm"],
-    tags: ["weekend"],
-    likesCount: 3,
-    isApproved: true
+    content: "Weekend plan: recharge, reset, and absolutely avoid emails.",
+    status: "approved"
   },
   {
-    title: "You’re Enough",
-    body: "You are enough, even on the days you doubt it.",
+    mood: "motivated",
     type: "message",
-    moods: ["sad", "motivated"],
-    tags: ["self-worth"],
-    likesCount: 20,
-    isApproved: true
+    content: "You are enough, even on the days you doubt it.",
+    status: "approved"
   }
 ];
 

@@ -18,7 +18,7 @@ const seedContent = async () => {
 
     const contentsWithAuthors = sampleContents.map((content) => ({
       ...content,
-      author: getRandomAuthor(),
+      createdBy: getRandomAuthor(),
     }));
 
     await Content.deleteMany();
