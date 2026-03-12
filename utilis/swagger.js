@@ -30,10 +30,7 @@ const options = {
     ],
   },
   apis: [
-    "services/*.js",
-    "routes/*.js",
-    "controllers/*.js",
-    "index.js"
+    "./**/*.js"
   ],
 };
 
