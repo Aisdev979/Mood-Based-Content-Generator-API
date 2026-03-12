@@ -10,7 +10,7 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:8080",
+        url: "https://mood-based-content-generator-api.vercel.app",
       },
     ],
     components: {
@@ -30,10 +30,10 @@ const options = {
     ],
   },
   apis: [
-    "./services/*.js",
-    "./routes/*.js",
-    "./controllers/*.js",
-    "./index.js"
+    "services/*.js",
+    "routes/*.js",
+    "controllers/*.js",
+    "index.js"
   ],
 };
 
