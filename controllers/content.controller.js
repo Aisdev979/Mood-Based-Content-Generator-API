@@ -39,7 +39,7 @@ export const submitContent = async (req, res, next) => {
 
     const newContent = await ContentService.submitContent(
       req.body,
-      req.user.id
+      req.userId
     );
 
     res.status(201).json({

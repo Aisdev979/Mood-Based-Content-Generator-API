@@ -4,12 +4,12 @@ import {
   getRandom,
   submitContent
 } from "../controllers/content.controller.js";
-import authMiddleware from "../middlewares/auth.middleware.js";
+import {verifyToken, authorize } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
-router.get("/mood/:mood", getByMood);
-router.get("/random", getRandom);
-router.post("/", authMiddleware, submitContent);
+router.get("/content/mood/:mood", getByMood);
+router.get("/content/random", getRandom);
+router.post("/content", verifyToken, authorize("user"), submitContent);
 
 export default router;
