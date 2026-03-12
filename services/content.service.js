@@ -5,7 +5,6 @@ class ContentService {
   static async getByMood(mood) {
     const result = await Content.aggregate([
       { $match: { mood, status: "approved" } },
-      { $sample: { size: 1 } }
     ]);
 
     if (!result.length) {
