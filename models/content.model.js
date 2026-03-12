@@ -15,7 +15,6 @@ const contentSchema = new mongoose.Schema(
 
         type: {
             type: String,
-            enum: ["quote", "joke", "affirmation", "story"],
             required: true,
         },
 
