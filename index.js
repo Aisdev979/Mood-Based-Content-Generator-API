@@ -6,6 +6,8 @@ import { authRouter } from "./routes/auth.route.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./utilis/swagger.js";
+import interactionRouter from "./routes/interaction.routes.js";
+import moodRouter from "./routes/mood.routes.js";
 
 
 dotenv.config();
@@ -42,6 +44,8 @@ app.get("/", (req, res) => {
 // Routes
 app.use("/api/v1", contentRoutes);
 app.use("/api/v1", authRouter);
+app.use("/api/v1", interactionRouter);
+app.use("/api/v1", moodRouter);
 
 // Error Handler (must be last)
 app.use(errorMiddleware);

@@ -1,4 +1,3 @@
-//yOU CAN DELET THE FILE
 import { User } from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 
@@ -6,7 +5,6 @@ export const signup = async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
-    // check if email already exists
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
@@ -43,7 +41,7 @@ export const signin = async (req, res) => {
 
     const user = await User
       .findOne({ email })
-      .select("+password"); // required because password select:false
+      .select("+password");
 
     if (!user) {
       return res.status(401).json({
@@ -63,7 +61,7 @@ export const signin = async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false, // true in production (HTTPS)
+      secure: false,
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000
     });

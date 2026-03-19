@@ -1,30 +1,28 @@
-import MoodService from "./services/mood.service.js";
+import MoodService from "../services/mood.service.js";
 
-// Log moods and get recommendations based on mood and user preferences.
+// Log user's mood and return recommendations
 export const logMood = async (req, res, next) => {
   try {
-    const { mood, date } = req.body;
+    const { mood: inputMood, date: inputDate } = req.body;
+    const authenticatedUserId = req.userId;
 
-    if (!mood || typeof mood !== "string") {
-      return res.status(400).json({
-        success: false,
-        message: "mood is required and must be a string",
-      });
-    }
+    const moodLogDocument = await MoodService.logMood(
+      authenticatedUserId,
+      inputMood,
+      inputDate
+    );
 
-    const moodLog = await MoodService.logMood(req.user.id, mood, date);
-
-    const recommendations = await MoodService.getRecommendations(
-      req.user.id,
-      mood
+    const recommendedContent = await MoodService.getRecommendations(
+      authenticatedUserId,
+      inputMood
     );
 
     return res.status(201).json({
       success: true,
       message: "Mood logged successfully",
       data: {
-        moodLog,
-        recommendations,
+        moodLog: moodLogDocument,
+        recommendations: recommendedContent,
       },
     });
   } catch (error) {
@@ -32,47 +30,52 @@ export const logMood = async (req, res, next) => {
   }
 };
 
-// Mood History with Pagination
+// Get paginated mood history for authenticated user
 export const getMoodHistory = async (req, res, next) => {
   try {
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 20;
+    const authenticatedUserId = req.userId;
 
-    const result = await MoodService.getMoodHistory(req.user.id, {
-      page,
-      limit,
-    });
+    const currentPage =
+      parseInt(req.query.page, 10) || 1;
+
+    const itemsPerPage =
+      parseInt(req.query.limit, 10) || 20;
+
+    const moodHistoryResult = await MoodService.getMoodHistory(
+      authenticatedUserId,
+      {
+        page: currentPage,
+        limit: itemsPerPage,
+      }
+    );
 
     return res.status(200).json({
       success: true,
-      data: result,
+      data: moodHistoryResult,
     });
   } catch (error) {
     next(error);
   }
 };
 
+// Get recommendations based on a specific mood
 export const getRecommendations = async (req, res, next) => {
   try {
-    const mood = req.params.mood?.toLowerCase();
+    const moodFromParams = req.params.mood;
+    const authenticatedUserId = req.userId;
 
-    if (!mood) {
-      return res.status(400).json({
-        success: false,
-        message: "mood param is required",
-      });
-    }
+    const recommendationLimit =
+      parseInt(req.query.limit, 10) || 10;
 
-    const limit = parseInt(req.query.limit, 10) || 10;
-    const recommendations = await MoodService.getRecommendations(
-      req.user.id,
-      mood,
-      limit
+    const recommendedContent = await MoodService.getRecommendations(
+      authenticatedUserId,
+      moodFromParams,
+      recommendationLimit
     );
 
     return res.status(200).json({
       success: true,
-      data: recommendations,
+      data: recommendedContent,
     });
   } catch (error) {
     next(error);

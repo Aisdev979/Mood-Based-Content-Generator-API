@@ -1,185 +1,207 @@
-import MoodLog from "./models/moodLog.model.js";
-import Content from "./models/content.model.js";
-import Like from "./models/like.model.js";
-import { User } from "./models/user.model.js";
+import MoodLog from "../models/moodLog.model.js";
+import Content from "../models/content.model.js";
+import Like from "../models/like.model.js";
+import { User } from "../models/user.model.js";
 
-// Log moods
 class MoodService {
-  static async logMood(userId, mood, date) {
-    const targetDate = date ? new Date(date) : new Date();
-    targetDate.setUTCHours(0, 0, 0, 0);
+  // Normalize mood input
+  static normalizeMood(inputMood) {
+    return inputMood.trim().toLowerCase();
+  }
 
-    const moodLog = await MoodLog.findOneAndUpdate(
-      { user: userId, date: targetDate },
-      { mood: mood.toLowerCase() },
+  // Normalize date to start of the day (UTC)
+  static normalizeDate(inputDate) {
+    const normalizedDate = inputDate ? new Date(inputDate) : new Date();
+    normalizedDate.setUTCHours(0, 0, 0, 0);
+    return normalizedDate;
+  }
+
+  // Log or update mood for a specific day
+  static async logMood(userId, inputMood, inputDate) {
+    const normalizedMood = this.normalizeMood(inputMood);
+    const normalizedDate = this.normalizeDate(inputDate);
+
+    const moodLogDocument = await MoodLog.findOneAndUpdate(
+      { user: userId, date: normalizedDate },
+      { mood: normalizedMood },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
 
-    return moodLog;
+    return moodLogDocument;
   }
 
-//   Get mood history with pagination
-  static async getMoodHistory(userId, { page = 1, limit = 20 } = {}) {
-    const skip = (page - 1) * limit;
+  // Get paginated mood history
+  static async getMoodHistory(userId, options = {}) {
+    const currentPage = options.page || 1;
+    const itemsPerPage = options.limit || 20;
+    const documentsToSkip = (currentPage - 1) * itemsPerPage;
 
-    const [logs, total] = await Promise.all([
+    const [moodLogs, totalMoodLogsCount] = await Promise.all([
       MoodLog.find({ user: userId })
         .sort({ date: -1 })
-        .skip(skip)
-        .limit(limit)
+        .skip(documentsToSkip)
+        .limit(itemsPerPage)
         .lean(),
       MoodLog.countDocuments({ user: userId }),
     ]);
 
     return {
-      logs,
+      logs: moodLogs,
       pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
+        total: totalMoodLogsCount,
+        page: currentPage,
+        limit: itemsPerPage,
+        totalPages: Math.ceil(totalMoodLogsCount / itemsPerPage),
       },
     };
   }
 
-//   Recommendation Logic - The logic automatically recommend content based on:
-//     Current mood
-//     Previously liked content
-//     Saved items
-//     Most liked content in that mood
-  static async getRecommendations(userId, mood, limit = 10) {
-    const normalizedMood = mood.toLowerCase();
+  // Main recommendation engine
+  static async getRecommendations(userId, inputMood, recommendationLimit = 10) {
+    const normalizedMood = this.normalizeMood(inputMood);
 
-    const [likedContentIds, savedContentIds] = await Promise.all([
-      MoodService._getLikedContentIds(userId),
-      MoodService._getSavedContentIds(userId),
+    const [
+      likedContentIdList,
+      savedContentIdList
+    ] = await Promise.all([
+      this._getLikedContentIds(userId),
+      this._getSavedContentIds(userId),
     ]);
 
-    const preferredMoods = await MoodService._inferPreferredMoods(
-      likedContentIds,
+    const excludedContentIdsSet = new Set([
+      ...likedContentIdList,
+      ...savedContentIdList,
+    ]);
+
+    const inferredPreferredMoods = await this._inferPreferredMoods(
+      likedContentIdList,
       normalizedMood
     );
 
-    const [moodMatches, popularInMood, likedSimilar] = await Promise.all([
-      MoodService._getContentByMood(normalizedMood, likedContentIds, savedContentIds, limit),
-      MoodService._getMostLikedByMood(normalizedMood, likedContentIds, savedContentIds, limit),
-      MoodService._getContentByMoods(preferredMoods, normalizedMood, likedContentIds, savedContentIds, Math.ceil(limit / 2)),
+    const [
+      contentMatchingCurrentMood,
+      contentMatchingPreferredMoods
+    ] = await Promise.all([
+      this._getContentBySingleMood(normalizedMood, recommendationLimit * 2),
+      this._getContentByMultipleMoods(inferredPreferredMoods, recommendationLimit),
     ]);
 
-    const scored = MoodService._scoreAndDeduplicate(
-      { moodMatches, popularInMood, likedSimilar },
-      likedContentIds,
-      savedContentIds,
-      limit
-    );
-
-    return scored;
-  }
-
-//  Helper method for fetching IDs of content the user has liked or saved, which we use to personalize recommendations and avoid suggesting content they've already engaged with.
-  static async _getLikedContentIds(userId) {
-    const likes = await Like.find({ user: userId }).select("content").lean();
-    return likes.map((l) => l.content.toString());
-  }
-
-  static async _getSavedContentIds(userId) {
-    const user = await User.findById(userId).select("savedContent").lean();
-    return (user?.savedContent ?? []).map((id) => id.toString());
-  }
-
-  static async _inferPreferredMoods(likedContentIds, excludeMood) {
-    if (!likedContentIds.length) return [];
-
-    const contents = await Content.find({ _id: { $in: likedContentIds } })
-      .select("moods")
-      .lean();
-
-    const moodFrequency = {};
-    contents.forEach(({ moods }) => {
-      moods.forEach((m) => {
-        if (m !== excludeMood) {
-          moodFrequency[m] = (moodFrequency[m] ?? 0) + 1;
-        }
-      });
-    });
-
-    return Object.entries(moodFrequency)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 3)
-      .map(([m]) => m);
-  }
-
-  static async _getContentByMood(mood, likedIds, savedIds, limit) {
-    return Content.find({
-      moods: mood,
-      isApproved: true,
-    })
-      .sort({ likesCount: -1 })
-      .limit(limit * 2) 
-      .lean();
-  }
-
-  static async _getMostLikedByMood(mood, likedIds, savedIds, limit) {
-    return Content.find({
-      moods: mood,
-      isApproved: true,
-    })
-      .sort({ likesCount: -1 })
-      .limit(limit)
-      .lean();
-  }
-
-  static async _getContentByMoods(moods, excludeMood, likedIds, savedIds, limit) {
-    if (!moods.length) return [];
-
-    return Content.find({
-      moods: { $in: moods },
-      isApproved: true,
-    })
-      .sort({ likesCount: -1 })
-      .limit(limit)
-      .lean();
-  }
-
-  static _scoreAndDeduplicate(buckets, likedIds, savedIds, limit) {
-    const likedSet = new Set(likedIds);
-    const savedSet = new Set(savedIds);
-
-    const allCandidates = [
-      ...buckets.moodMatches.map((c) => ({ ...c, _source: "mood" })),
-      ...buckets.popularInMood.map((c) => ({ ...c, _source: "popular" })),
-      ...buckets.likedSimilar.map((c) => ({ ...c, _source: "similar" })),
+    const combinedCandidateContent = [
+      ...contentMatchingCurrentMood,
+      ...contentMatchingPreferredMoods,
     ];
 
-    const seen = new Set();
-    const unique = [];
-    for (const item of allCandidates) {
-      const key = item._id.toString();
-      if (!seen.has(key)) {
-        seen.add(key);
-        unique.push(item);
+    const uniqueCandidateContent = this._removeDuplicateContent(
+      combinedCandidateContent
+    );
+
+    const filteredUnseenContent = uniqueCandidateContent.filter(
+      (contentItem) =>
+        !excludedContentIdsSet.has(contentItem._id.toString())
+    );
+
+    const scoredContent = this._scoreContentByRelevance(
+      filteredUnseenContent
+    );
+
+    return scoredContent.slice(0, recommendationLimit);
+  }
+
+  // Get IDs of liked content
+  static async _getLikedContentIds(userId) {
+    const likeDocuments = await Like.find({ user: userId })
+      .select("content")
+      .lean();
+
+    return likeDocuments.map((likeDoc) =>
+      likeDoc.content.toString()
+    );
+  }
+
+  // Get IDs of saved content
+  static async _getSavedContentIds(userId) {
+    const userDocument = await User.findById(userId)
+      .select("savedContent")
+      .lean();
+
+    return (userDocument?.savedContent ?? []).map((contentId) =>
+      contentId.toString()
+    );
+  }
+
+  // Infer user preferred moods based on liked content
+  static async _inferPreferredMoods(likedContentIdList, excludedMood) {
+    if (!likedContentIdList.length) return [];
+
+    const likedContentDocuments = await Content.find({
+      _id: { $in: likedContentIdList },
+    })
+      .select("mood")
+      .lean();
+
+    const moodFrequencyMap = {};
+
+    for (const contentItem of likedContentDocuments) {
+      for (const mood of contentItem.mood) {
+        if (mood !== excludedMood) {
+          moodFrequencyMap[mood] =
+            (moodFrequencyMap[mood] || 0) + 1;
+        }
       }
     }
 
-    const unseen = unique.filter((c) => !likedSet.has(c._id.toString()));
+    return Object.entries(moodFrequencyMap)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([mood]) => mood);
+  }
 
-    const sortedByLikes = [...unseen].sort((a, b) => b.likesCount - a.likesCount);
-    const topQuartileThreshold =
-      sortedByLikes[Math.floor(sortedByLikes.length * 0.25)]?.likesCount ?? 0;
+  // Get content matching a single mood
+  static async _getContentBySingleMood(targetMood, limit) {
+    return Content.find({
+      mood: targetMood,
+      status: "approved",
+    })
+      .sort({ likesCount: -1 })
+      .limit(limit)
+      .lean();
+  }
 
-    const scored = unseen.map((c) => {
-      let score = 0;
-      if (c._source === "mood") score += 3;
-      if (c._source === "similar") score += 2;
-      if (savedSet.has(c._id.toString())) score += 1;
-      if (c.likesCount >= topQuartileThreshold) score += 1;
+  // Get content matching multiple moods
+  static async _getContentByMultipleMoods(targetMoods, limit) {
+    if (!targetMoods.length) return [];
 
-      return { ...c, _relevanceScore: score };
+    return Content.find({
+      mood: { $in: targetMoods },
+      status: "approved",
+    })
+      .sort({ likesCount: -1 })
+      .limit(limit)
+      .lean();
+  }
+
+  // Remove duplicate content items
+  static _removeDuplicateContent(contentList) {
+    const seenContentIds = new Set();
+
+    return contentList.filter((contentItem) => {
+      const contentId = contentItem._id.toString();
+
+      if (seenContentIds.has(contentId)) return false;
+
+      seenContentIds.add(contentId);
+      return true;
     });
+  }
 
-    return scored
-      .sort((a, b) => b._relevanceScore - a._relevanceScore)
-      .slice(0, limit);
+  // Score content based on relevance (simple popularity-based scoring)
+  static _scoreContentByRelevance(contentList) {
+    return contentList
+      .map((contentItem) => ({
+        ...contentItem,
+        relevanceScore: contentItem.likesCount || 0,
+      }))
+      .sort((a, b) => b.relevanceScore - a.relevanceScore);
   }
 }
 

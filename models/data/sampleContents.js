@@ -1,123 +1,143 @@
 const sampleContents = [
   {
-    mood: "happy",
+    mood: ["happy"],
     type: "quote",
     content: "Every new morning is proof that you survived yesterday. Keep going.",
-    status: "approved"
+    status: "approved",
+    likesCount: 0,
   },
   {
-    mood: "happy",
+    mood: ["happy"],
     type: "joke",
     content: "Why did the developer go broke? Because he used up all his cache.",
-    status: "approved"
+    status: "approved",
+    likesCount: 0,
   },
   {
-    mood: "sad",
+    mood: ["sad"],
     type: "quote",
     content: "Some days feel heavy, but even storms eventually run out of rain.",
-    status: "approved"
+    status: "approved",
+    likesCount: 0,
   },
   {
-    mood: "motivated",
+    mood: ["motivated"],
     type: "message",
     content: "The fact that you're still trying means you haven't given up. That matters.",
-    status: "approved"
+    status: "approved",
+    likesCount: 0,
   },
   {
-    mood: "energetic",
+    mood: ["energetic"],
     type: "joke",
     content: "Behind every successful person is a substantial amount of coffee.",
-    status: "approved"
+    status: "approved",
+    likesCount: 0,
   },
   {
-    mood: "reflective",
+    mood: ["reflective"],
     type: "story",
     content: "She felt lost, but she realized she was actually exploring a new version of herself.",
-    status: "approved"
+    status: "approved",
+    likesCount: 0,
   },
   {
-    mood: "motivated",
+    mood: ["motivated"],
     type: "quote",
     content: "Celebrate small wins. They build big confidence.",
-    status: "approved"
+    status: "approved",
+    likesCount: 0,
   },
   {
-    mood: "anxious",
+    mood: ["anxious"],
     type: "joke",
     content: "My brain at 2AM: let's replay every awkward moment since 2009.",
-    status: "approved"
+    status: "approved",
+    likesCount: 0,
   },
   {
-    mood: "calm",
+    mood: ["calm"],
     type: "message",
     content: "It’s okay if your progress feels slow. Healing is not a race.",
-    status: "approved"
+    status: "approved",
+    likesCount: 0,
   },
   {
-    mood: "motivated",
+    mood: ["motivated"],
     type: "quote",
     content: "You don’t realize how strong you are until being strong is your only option.",
-    status: "approved"
+    status: "approved",
+    likesCount: 0,
   },
   {
-    mood: "calm",
+    mood: ["calm"],
     type: "message",
     content: "Drink water. Take breaks. You matter.",
-    status: "approved"
+    status: "approved",
+    likesCount: 0,
   },
   {
-    mood: "happy",
+    mood: ["happy"],
     type: "joke",
     content: "Day 1 at the gym: 90% confidence, 10% knowing what you're doing.",
-    status: "approved"
+    status: "approved",
+    likesCount: 0,
   },
   {
-    mood: "reflective",
+    mood: ["reflective"],
     type: "story",
     content: "The sunset reminded her that endings can be beautiful too.",
-    status: "approved"
+    status: "approved",
+    likesCount: 0,
   },
   {
-    mood: "tired",
+    mood: ["tired"],
     type: "quote",
     content: "Working hard is good. Burning out is not.",
-    status: "approved"
+    status: "approved",
+    likesCount: 0,
   },
   {
-    mood: "calm",
+    mood: ["calm"],
     type: "joke",
     content: "My social battery lasts exactly 2 hours. After that, I need silence.",
-    status: "approved"
+    status: "approved",
+    likesCount: 0,
   },
   {
-    mood: "motivated",
+    mood: ["motivated"],
     type: "message",
     content: "One small step today is better than no step at all.",
-    status: "approved"
+    status: "approved",
+    likesCount: 0,
   },
   {
-    mood: "calm",
+    mood: ["calm"],
     type: "story",
     content: "Blankets, soft music, and the sound of rain — peace.",
-    status: "approved"
+    status: "approved",
+    likesCount: 0,
   },
   {
-    mood: "anxious",
+    mood: ["anxious"],
     type: "quote",
     content: "Sometimes the hardest part is simply beginning.",
-    status: "approved"
+    status: "approved",
+    likesCount: 0,
   },
   {
-    mood: "happy",
+    mood: ["happy"],
     type: "joke",
     content: "Weekend plan: recharge, reset, and absolutely avoid emails.",
-    status: "approved"
+    status: "approved",
+    likesCount: 0,
   },
   {
-    mood: "motivated",
+    mood: ["motivated"],
     type: "message",
     content: "You are enough, even on the days you doubt it.",
-    status: "approved"
+    status: "approved",
+    likesCount: 0,
   }
 ];
 

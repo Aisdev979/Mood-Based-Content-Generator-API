@@ -3,9 +3,10 @@ import mongoose from "mongoose";
 const contentSchema = new mongoose.Schema(
   {
     mood: {
-      type: String,
+      type: [String],
       required: true,
       lowercase: true,
+      default: []
     },
     type: {
       type: String,
@@ -24,6 +25,10 @@ const contentSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+    likesCount: {
+      type: Number,
+      default: 0,
+    }
   },
   { timestamps: true }
 );
