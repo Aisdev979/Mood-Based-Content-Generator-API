@@ -9,7 +9,6 @@ import swaggerSpec from "./utilis/swagger.js";
 import interactionRouter from "./routes/interaction.routes.js";
 import moodRouter from "./routes/mood.routes.js";
 
-
 dotenv.config();
 
 const app = express();

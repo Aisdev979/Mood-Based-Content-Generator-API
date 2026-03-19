@@ -34,7 +34,9 @@ export const submitContent = async (req, res, next) => {
     const { mood, type, content } = req.body;
 
     if (!mood || !type || !content) {
-      throw new Error("Mood, type and content are required");
+      const error = new Error('Mood, type and content are required');
+      error.statusCode = 400;
+      throw error;
     }
 
     const newContent = await ContentService.submitContent(
